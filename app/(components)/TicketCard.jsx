@@ -5,6 +5,7 @@ import ProgressDisplay from './ProgressDisplay';
 import StatusDisplay from './StatusDisplay';
 import { faPaperclip } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import DOMPurify from 'dompurify';
 
 const TicketCard = ({ ticket }) => {
   const formatTimeStamp = (timestamp) => {
@@ -32,11 +33,11 @@ const TicketCard = ({ ticket }) => {
       <Link href={`/TicketPage/${ticket._id}`} style={{ display: 'contents' }}>
         <h4>{ticket.title}</h4>
         <hr className="h-px border-0 bg-page mb-2" />
-        <p className="whitespace-pre-wrap">
-          {ticket.description.length > 300
-            ? `${ticket.description.slice(0, 300)}...`
-            : ticket.description}
-        </p>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(ticket.description),
+          }}
+        />
         <div className="flex-grow"></div>
         <div className="flex mt-2">
           <div className="flex flex-col">

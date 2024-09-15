@@ -8,8 +8,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ImageModal from './ImageModal';
+import dynamic from 'next/dynamic';
+import 'react-quill/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
 export const categories = [
   { value: 'backlog', label: 'Backlog' },
@@ -22,12 +26,24 @@ const TicketForm = ({ ticket }) => {
   const router = useRouter();
   const fileInputRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    if (EDITMODE && ticket.description) {
+      setDescription(ticket.description);
+    }
+  }, [EDITMODE, ticket.description]);
 
   const handleChange = (e) => {
     const value = e.target.value;
     const name = e.target.name;
 
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleDescriptionChange = (content) => {
+    setDescription(content);
+    setFormData((prevState) => ({ ...prevState, description: content }));
   };
 
   const handleFileChange = (e) => {
@@ -47,7 +63,10 @@ const TicketForm = ({ ticket }) => {
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
       if (key !== 'screenshots') {
-        formDataToSend.append(key, formData[key]);
+        formDataToSend.append(
+          key,
+          key === 'description' ? description : formData[key]
+        );
       }
     });
 
@@ -128,13 +147,17 @@ const TicketForm = ({ ticket }) => {
           required={true}
         />
         <label>Description</label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required={true}
-          rows="5"
+        <ReactQuill
+          theme="snow"
+          value={description}
+          onChange={handleDescriptionChange}
+          modules={{
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              ['clean'],
+            ],
+          }}
         />
 
         <label>Category</label>
