@@ -15,7 +15,7 @@ const predefinedCategories = [
 
 const getTickets = async () => {
   try {
-    const res = await fetch('https://ticket-eight-xi.vercel.app/api/Tickets', {
+    const res = await fetch('/api/Tickets', {
       cache: 'no-store',
     });
     return res.json();
@@ -79,19 +79,16 @@ const Dashboard = () => {
 
       // Update the ticket in the database
       try {
-        const response = await fetch(
-          `https://ticket-eight-xi.vercel.app/api/Tickets/${movedTicket._id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              ...movedTicket,
-              category: destCategory,
-            }),
-          }
-        );
+        const response = await fetch(`/api/Tickets/${movedTicket._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...movedTicket,
+            category: destCategory,
+          }),
+        });
 
         if (!response.ok) {
           throw new Error('Failed to update ticket');
