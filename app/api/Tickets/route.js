@@ -1,5 +1,6 @@
 import Ticket from '../../(models)/Ticket';
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 
@@ -34,10 +35,27 @@ export async function POST(req) {
 
 export async function GET() {
   try {
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI is not defined');
+      return NextResponse.json(
+        { error: 'Database configuration error' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Attempting to connect to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connected to MongoDB successfully');
+
     const tickets = await Ticket.find();
+    console.log(`Found ${tickets.length} tickets`);
+
     return NextResponse.json({ tickets }, { status: 200 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Error', error }, { status: 500 });
+    console.error('Failed to fetch tickets:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: error.message },
+      { status: 500 }
+    );
   }
 }
