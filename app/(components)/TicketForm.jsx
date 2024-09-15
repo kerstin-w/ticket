@@ -3,6 +3,7 @@
 import {
   faFloppyDisk,
   faPaperclip,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
@@ -20,6 +21,7 @@ const TicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id === 'new' ? false : true;
   const router = useRouter();
   const fileInputRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -40,6 +42,7 @@ const TicketForm = ({ ticket }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -48,10 +51,8 @@ const TicketForm = ({ ticket }) => {
       }
     });
 
-    // Append existing screenshots as JSON string
     formDataToSend.append('screenshots', JSON.stringify(formData.screenshots));
 
-    // Append new files
     files.forEach((file, index) => {
       formDataToSend.append(`file${index}`, file);
     });
@@ -73,6 +74,8 @@ const TicketForm = ({ ticket }) => {
       router.push('/');
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -244,8 +247,16 @@ const TicketForm = ({ ticket }) => {
           <option value="started">Started</option>
           <option value="done">Done</option>
         </select>
-        <button type="submit" className="btn max-w-xs">
-          {EDITMODE ? (
+        <button type="submit" className="btn max-w-xs" disabled={isLoading}>
+          {isLoading ? (
+            <>
+              <FontAwesomeIcon
+                icon={faSpinner}
+                className="icon-btn animate-spin"
+              />
+              <span>{EDITMODE ? 'Saving...' : 'Creating...'}</span>
+            </>
+          ) : EDITMODE ? (
             <>
               <FontAwesomeIcon icon={faFloppyDisk} className="icon-btn" />
               <span>Save Changes</span>
