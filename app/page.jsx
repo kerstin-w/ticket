@@ -15,7 +15,7 @@ const predefinedCategories = [
 
 const getTickets = async () => {
   try {
-    const res = await fetch('http://localhost:3000/api/Tickets', {
+    const res = await fetch('https://ticket-eight-xi.vercel.app/api/Tickets', {
       cache: 'no-store',
     });
     return res.json();
@@ -80,7 +80,7 @@ const Dashboard = () => {
       // Update the ticket in the database
       try {
         const response = await fetch(
-          `http://localhost:3000/api/Tickets/${movedTicket._id}`,
+          `https://ticket-eight-xi.vercel.app/api/Tickets/${movedTicket._id}`,
           {
             method: 'PUT',
             headers: {
