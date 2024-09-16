@@ -121,9 +121,40 @@ const Dashboard = () => {
     return { totalHours, totalCosts };
   };
 
+  const handleDownloadExcel = async () => {
+    try {
+      const response = await fetch('/api/generateExcel', {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate Excel file');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'tickets.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading Excel file:', error);
+      // You might want to show an error message to the user here
+    }
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="p-5">
+        <button
+          onClick={handleDownloadExcel}
+          className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Download Excel
+        </button>
         <div className="flex">
           {categories.length && tickets.length ? (
             categories.map((category) => (
@@ -138,7 +169,6 @@ const Dashboard = () => {
                       {predefinedCategories.find((c) => c.value === category)
                         ?.label || category}
                     </h2>
-                    {/* New summary section */}
                     <div className="text-sm text-gray-600 mb-2">
                       <p>
                         Total Hours: {getCategorySummary(category).totalHours}

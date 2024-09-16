@@ -16,6 +16,7 @@
     "dotenv": "^16.4.5",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.11",
+    "exceljs": "^4.4.0",
     "formidable": "^3.5.1",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.2",
