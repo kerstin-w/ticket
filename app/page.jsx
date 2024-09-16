@@ -105,6 +105,22 @@ const Dashboard = () => {
     }
   };
 
+  // New function to calculate category summaries
+  const getCategorySummary = (category) => {
+    const categoryTickets = tickets.filter(
+      (ticket) => ticket.category === category
+    );
+    const totalHours = categoryTickets.reduce(
+      (sum, ticket) => sum + (ticket.hours || 0),
+      0
+    );
+    const totalCosts = categoryTickets.reduce(
+      (sum, ticket) => sum + (ticket.costs || 0),
+      0
+    );
+    return { totalHours, totalCosts };
+  };
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="p-5">
@@ -122,6 +138,16 @@ const Dashboard = () => {
                       {predefinedCategories.find((c) => c.value === category)
                         ?.label || category}
                     </h2>
+                    {/* New summary section */}
+                    <div className="text-sm text-gray-600 mb-2">
+                      <p>
+                        Total Hours: {getCategorySummary(category).totalHours}
+                      </p>
+                      <p>
+                        Total Costs: €
+                        {getCategorySummary(category).totalCosts.toFixed(2)}
+                      </p>
+                    </div>
                     <div className="w-[20vw]">
                       {tickets
                         .filter((ticket) => ticket.category === category)

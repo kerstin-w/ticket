@@ -55,6 +55,10 @@ const TicketCard = ({ ticket }) => {
             </div>
           )}
         </div>
+        <div className="ml-3 flex flex-col items-end">
+          <p className="text-xs my-1">Hours: {ticket.hours}</p>
+          <p className="text-xs my-1">Costs: {ticket.costs}</p>
+        </div>
       </Link>
     </div>
   );

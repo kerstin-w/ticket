@@ -14,6 +14,8 @@ import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
 import { categories } from '../(constants)/categories';
 import { types } from '../(constants)/types';
+import { priorityOptions } from '../(constants)/priorityOptions';
+import { statusOptions } from '../(constants)/status';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -185,21 +187,18 @@ const TicketForm = ({ ticket }) => {
         </select>
         <label>Priority</label>
         <div>
-          {[1, 2, 3, 4].map((priority) => (
-            <React.Fragment key={priority}>
+          {priorityOptions.map((priority) => (
+            <React.Fragment key={priority.value}>
               <input
-                id={`priority-${priority}`}
+                id={`priority-${priority.value}`}
                 name="priority"
                 type="radio"
-                value={priority}
+                value={priority.value}
                 onChange={handleChange}
-                checked={formData.priority == priority}
+                checked={formData.priority == priority.value}
               />
-              <label htmlFor={`priority-${priority}`}>
-                {priority === 1 && 'Must have'}
-                {priority === 2 && 'Should have'}
-                {priority === 3 && 'Could have'}
-                {priority === 4 && 'Will not have'}
+              <label htmlFor={`priority-${priority.value}`}>
+                {priority.label}
               </label>
             </React.Fragment>
           ))}
@@ -282,9 +281,11 @@ const TicketForm = ({ ticket }) => {
           onChange={handleChange}
           disabled={!EDITMODE}
         >
-          <option value="not started">Not Started</option>
-          <option value="started">Started</option>
-          <option value="done">Done</option>
+          {statusOptions.map((status) => (
+            <option key={status.value} value={status.value}>
+              {status.label}
+            </option>
+          ))}
         </select>
         <button type="submit" className="btn max-w-xs" disabled={isLoading}>
           {isLoading ? (
