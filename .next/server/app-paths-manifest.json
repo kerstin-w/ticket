@@ -1,5 +1,6 @@
 {
-  "/TicketPage/[id]/page": "app/TicketPage/[id]/page.js",
   "/page": "app/page.js",
+  "/api/Tickets/route": "app/api/Tickets/route.js",
+  "/TicketPage/[id]/page": "app/TicketPage/[id]/page.js",
   "/api/Tickets/[id]/route": "app/api/Tickets/[id]/route.js"
 }

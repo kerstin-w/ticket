@@ -14,6 +14,8 @@ const ticketSchema = new Schema(
     active: Boolean,
     type: String,
     screenshots: [String],
+    hours: { type: Number, default: 0 },
+    costs: { type: Number, default: 0 },
   },
   {
     timestamps: true,

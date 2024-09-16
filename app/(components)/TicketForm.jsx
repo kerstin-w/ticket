@@ -12,14 +12,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import ImageModal from './ImageModal';
 import dynamic from 'next/dynamic';
 import 'react-quill/dist/quill.snow.css';
+import { categories } from '../(constants)/categories';
+import { types } from '../(constants)/types';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
-
-export const categories = [
-  { value: 'backlog', label: 'Backlog' },
-  { value: 'Q42024', label: 'Q4/2024' },
-  { value: '2025', label: '2025' },
-];
 
 const TicketForm = ({ ticket }) => {
   const EDITMODE = ticket._id === 'new' ? false : true;
@@ -88,7 +84,6 @@ const TicketForm = ({ ticket }) => {
       if (!res.ok) {
         throw new Error(`Failed to ${EDITMODE ? 'update' : 'create'} Ticket.`);
       }
-
       router.refresh();
       router.push('/');
     } catch (error) {
@@ -106,6 +101,9 @@ const TicketForm = ({ ticket }) => {
     status: 'not started',
     category: 'backlog',
     screenshots: [],
+    type: 'bug',
+    hours: 0,
+    costs: 0,
   };
 
   if (EDITMODE) {
@@ -117,13 +115,9 @@ const TicketForm = ({ ticket }) => {
     startingTicketData['category'] = ticket.category;
     startingTicketData['type'] = ticket.type;
     startingTicketData.screenshots = ticket.screenshots || [];
+    startingTicketData['hours'] = ticket.hours;
+    startingTicketData['costs'] = ticket.costs;
   }
-
-  const types = [
-    { value: 'bug', label: 'Bug' },
-    { value: 'improvement', label: 'Improvement' },
-    { value: 'feature', label: 'Feature' },
-  ];
 
   const [formData, setFormData] = useState(startingTicketData);
   const [files, setFiles] = useState([]);
@@ -209,6 +203,28 @@ const TicketForm = ({ ticket }) => {
               </label>
             </React.Fragment>
           ))}
+        </div>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <label>Hours</label>
+            <input
+              id="hours"
+              name="hours"
+              type="number"
+              value={formData.hours}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="flex-1">
+            <label>Costs</label>
+            <input
+              id="costs"
+              name="costs"
+              type="number"
+              value={formData.costs}
+              onChange={handleChange}
+            />
+          </div>
         </div>
         <label>Progress</label>
         <input

@@ -25,6 +25,10 @@ export async function POST(req) {
 
     ticketData.screenshots = screenshots;
 
+    // Convert hours and costs to numbers
+    if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
+    if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
+
     await Ticket.create(ticketData);
     return NextResponse.json({ message: 'Ticket Created' }, { status: 201 });
   } catch (error) {

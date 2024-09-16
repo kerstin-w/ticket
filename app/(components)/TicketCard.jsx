@@ -34,6 +34,7 @@ const TicketCard = ({ ticket }) => {
         <h4>{ticket.title}</h4>
         <hr className="h-px border-0 bg-page mb-2" />
         <div
+          className="hidden"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(ticket.description),
           }}

@@ -4,14 +4,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TicketCard from './(components)/TicketCard';
 import dotenv from 'dotenv';
 import Spinner from './(components)/Spinner';
+import { categories as predefinedCategories } from './(constants)/categories';
 
 dotenv.config();
-
-const predefinedCategories = [
-  { value: 'backlog', label: 'Backlog' },
-  { value: 'Q42024', label: 'Q4/2024' },
-  { value: '2025', label: '2025' },
-];
 
 const getTickets = async () => {
   try {
@@ -121,13 +116,13 @@ const Dashboard = () => {
                   <div
                     {...provided.droppableProps}
                     ref={provided.innerRef}
-                    className="mb-4"
+                    className="mb-4 border border-gray-300 p-2 mr-2 rounded-md"
                   >
                     <h2>
                       {predefinedCategories.find((c) => c.value === category)
                         ?.label || category}
                     </h2>
-                    <div className="w-[30vw]">
+                    <div className="w-[20vw]">
                       {tickets
                         .filter((ticket) => ticket.category === category)
                         .map((ticket, index) => (

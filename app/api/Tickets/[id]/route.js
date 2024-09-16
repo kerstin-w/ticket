@@ -63,9 +63,15 @@ export async function PUT(req, { params }) {
       ticketData.screenshots = screenshots;
     }
 
+    // Convert hours and costs to numbers
+    if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
+    if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
+
     const updateTicketData = await Ticket.findByIdAndUpdate(id, ticketData, {
       new: true,
     });
+
+    console.log('Ticket updated:', updateTicketData);
 
     return NextResponse.json(
       { message: 'Ticket Updated', ticket: updateTicketData },

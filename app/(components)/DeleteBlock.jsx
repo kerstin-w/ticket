@@ -11,7 +11,7 @@ const DeleteBlock = ({ id }) => {
   const router = useRouter();
 
   const deleteTicket = async () => {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/Tickets/${id}`, {
+    const res = await fetch(`/api/Tickets/${id}`, {
       method: 'DELETE',
     });
 
