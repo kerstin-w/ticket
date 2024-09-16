@@ -8,6 +8,10 @@ const StatusDisplay = ({ status }) => {
       case 'started':
         color = 'bg-yellow-200';
         return color;
+
+      case 'estimated':
+        color = 'bg-blue-200';
+        return color;
       case 'not started':
         color = 'bg-red-200';
         return color;

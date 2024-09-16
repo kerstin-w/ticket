@@ -12,6 +12,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import BudgetVsSpentCharts from '../(components)/BudgetVsSpentChart';
 
 const Tracker = () => {
   const [tickets, setTickets] = useState([]);
@@ -123,17 +124,21 @@ const Tracker = () => {
           name: ticket.category,
           count: 0,
           costs: 0,
+          startedCosts: 0,
           budget: categoryBudgets[ticket.category] || 0,
         };
       }
       acc[ticket.category].count += 1;
       acc[ticket.category].costs += ticket.costs || 0;
+      if (ticket.status === 'started') {
+        acc[ticket.category].startedCosts += ticket.costs || 0;
+      }
       return acc;
     }, {});
 
     return Object.values(categoryData).map((category) => ({
       ...category,
-      remainingBudget: category.budget - category.costs,
+      remainingBudget: category.budget - category.startedCosts,
     }));
   };
 
@@ -291,8 +296,47 @@ const Tracker = () => {
         </div>
       </div>
 
+      {/* Category Budget Overview */}
+      <div className="mb-4">
+        <h2 className="text-xl font-bold mb-2">Category Budget Overview</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr>
+                <th className="border p-2">Category</th>
+                <th className="border p-2">Budget</th>
+                <th className="border p-2">Spent (Started)</th>
+                <th className="border p-2">Remaining</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categoryData.map((category) => (
+                <tr key={category.name}>
+                  <td className="border p-2">{category.name}</td>
+                  <td className="border p-2">€{category.budget.toFixed(2)}</td>
+                  <td className="border p-2">
+                    €{category.startedCosts.toFixed(2)}
+                  </td>
+                  <td
+                    className={`border p-2 ${
+                      category.remainingBudget < 0
+                        ? 'text-red-500'
+                        : 'text-green-500'
+                    }`}
+                  >
+                    €{category.remainingBudget.toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* New Budget vs Spent Charts */}
+        <BudgetVsSpentCharts categoryData={categoryData} />
         <div className="border rounded p-4">
           <h2 className="font-bold mb-2 text-lg">Tickets by Status</h2>
           <ResponsiveContainer width="100%" height={300}>

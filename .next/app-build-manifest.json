@@ -1,9 +1,9 @@
 {
   "pages": {
-    "/page": [
+    "/Tracker/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/chunks/app/Tracker/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -16,21 +16,21 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/Tracker/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/Tracker/page.js"
+      "static/chunks/app/page.js"
+    ],
+    "/YearPage/[year]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/YearPage/[year]/page.js"
     ],
     "/TicketPage/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/css/app/TicketPage/[id]/page.css",
       "static/chunks/app/TicketPage/[id]/page.js"
-    ],
-    "/_not-found/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
     ]
   }
 }
