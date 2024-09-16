@@ -20,10 +20,14 @@ const Nav = () => {
         <Link href="/TicketPage/new">
           <FontAwesomeIcon icon={faTicket} className="icon" />
         </Link>
+        <Link href="/Tracker">tracker</Link>
         {availableYears.map((year) => (
-          <Link key={year} href={`/YearPage/${year}`}>
-            <FontAwesomeIcon icon={faCalendar} className="icon" />
-            <span className="ml-1">{year}</span>
+          <Link key={year} href={`/YearPage/${year}`} className="btn">
+            <span className="ml-1 whitespace-nowrap text-default-text">
+              {' '}
+              <FontAwesomeIcon icon={faCalendar} className="icon" />
+              &nbsp;{year}
+            </span>
           </Link>
         ))}
       </div>

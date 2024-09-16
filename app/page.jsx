@@ -151,7 +151,7 @@ const Dashboard = () => {
       <div className="p-5">
         <button
           onClick={handleDownloadExcel}
-          className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="mb-4 btn w-64 text-default-text"
         >
           Download Excel
         </button>
