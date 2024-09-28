@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import dbConnect from '@/app/lib/dbConnect';
+import { getCategoryLevels } from '@/app/utils/categoryUtils';
 
 async function encodeFileToBase64(file) {
   const bytes = await file.arrayBuffer();
@@ -11,6 +13,7 @@ async function encodeFileToBase64(file) {
 }
 
 export async function POST(req) {
+  await dbConnect();
   try {
     const formData = await req.formData();
     const ticketData = Object.fromEntries(formData.entries());
@@ -29,6 +32,10 @@ export async function POST(req) {
     if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
     if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
 
+    // Add category levels
+    const categoryLevels = getCategoryLevels(ticketData.category);
+    Object.assign(ticketData, categoryLevels);
+
     await Ticket.create(ticketData);
     return NextResponse.json({ message: 'Ticket Created' }, { status: 201 });
   } catch (error) {
@@ -38,22 +45,10 @@ export async function POST(req) {
 }
 
 export async function GET() {
+  await dbConnect();
   try {
-    if (!process.env.MONGODB_URI) {
-      console.error('MONGODB_URI is not defined');
-      return NextResponse.json(
-        { error: 'Database configuration error' },
-        { status: 500 }
-      );
-    }
-
-    console.log('Attempting to connect to MongoDB...');
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB successfully');
-
     const tickets = await Ticket.find();
     console.log(`Found ${tickets.length} tickets`);
-
     return NextResponse.json({ tickets }, { status: 200 });
   } catch (error) {
     console.error('Failed to fetch tickets:', error);

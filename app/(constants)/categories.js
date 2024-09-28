@@ -8,4 +8,10 @@ export const categories = [
   { value: '2025', label: '2025' },
   { value: 'Q12025', label: 'Q1/2025' },
   { value: '012025', label: '01/2025' },
+  { value: '022025', label: '02/2025' },
+  { value: '032025', label: '03/2025' },
+  { value: 'Q22025', label: 'Q2/2025' },
+  { value: '042025', label: '04/2025' },
+  { value: '052025', label: '05/2025' },
+  { value: '062025', label: '06/2025' },
 ];

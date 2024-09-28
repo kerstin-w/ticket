@@ -23,6 +23,9 @@ const Nav = () => {
         <Link href="/Tracker" className="btn text-default-text">
           tracker
         </Link>
+        <Link href="/Budget" className="btn text-default-text">
+          Budget
+        </Link>
         {availableYears.map((year) => (
           <Link key={year} href={`/YearPage/${year}`} className="btn">
             <span className="ml-1 whitespace-nowrap text-default-text">

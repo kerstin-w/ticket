@@ -34,30 +34,27 @@ const TicketCard = ({ ticket }) => {
         <h4>{ticket.title}</h4>
         <hr className="h-px border-0 bg-page mb-2" />
         <div
-          className="hidden"
           dangerouslySetInnerHTML={{
             __html: DOMPurify.sanitize(ticket.description),
           }}
         />
-        <div className="flex-grow"></div>
-        <div className="flex mt-2">
-          <div className="flex flex-col">
-            <p className="text-xs my-1">{formatTimeStamp(ticket.createdAt)}</p>
-            <ProgressDisplay progress={ticket.progress} />
-          </div>
-          <div className="ml-auto flex items-end">
-            <StatusDisplay status={ticket.status} />
-          </div>
-          {ticket.screenshots && ticket.screenshots.length > 0 && (
-            <div className="attachment-indicator ml-3">
-              <FontAwesomeIcon icon={faPaperclip} />
-              <span>{ticket.screenshots.length}</span>
+        <hr class="h-px border-0 bg-page my-2" />
+        <div className="flex">
+          <div className="flex mt-2">
+            <div className="mr-auto flex items-end">
+              <StatusDisplay status={ticket.status} />
             </div>
-          )}
-        </div>
-        <div className="ml-3 flex flex-col items-end">
-          <p className="text-xs my-1">Hours: {ticket.hours}</p>
-          <p className="text-xs my-1">Costs: {ticket.costs}</p>
+            {ticket.screenshots && ticket.screenshots.length > 0 && (
+              <div className="attachment-indicator ml-3">
+                <FontAwesomeIcon icon={faPaperclip} />
+                <span>{ticket.screenshots.length}</span>
+              </div>
+            )}
+          </div>
+          <div className="ml-auto flex flex-col items-end">
+            <p className="text-xs my-1">Hours: {ticket.hours}</p>
+            <p className="text-xs my-1">Costs: {ticket.stimatedCosts}</p>
+          </div>
         </div>
       </Link>
     </div>

@@ -1,12 +1,27 @@
 import Ticket from '@/app/(models)/Ticket';
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { writeFile } from 'fs/promises';
 import path from 'path';
+import dbConnect from '@/app/lib/dbConnect';
 
 async function encodeFileToBase64(file) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   return `data:${file.type};base64,${buffer.toString('base64')}`;
+}
+
+// Add this utility function at the top of your file
+function getCategoryLevels(category) {
+  const year = category.slice(-4);
+  const month = category.slice(0, 2);
+  const quarter = `Q${Math.ceil(parseInt(month) / 3)}${year}`;
+
+  return {
+    categoryMonth: category,
+    categoryQuarter: quarter,
+    categoryYear: year,
+  };
 }
 
 export async function GET(req, { params }) {
@@ -22,6 +37,7 @@ export async function GET(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
+  await dbConnect();
   try {
     const { id } = params;
     await Ticket.findByIdAndDelete(id);
@@ -33,6 +49,7 @@ export async function DELETE(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
+  await dbConnect();
   try {
     const { id } = params;
     let ticketData;
@@ -66,6 +83,12 @@ export async function PUT(req, { params }) {
     // Convert hours and costs to numbers
     if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
     if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
+
+    // Update category levels if category has changed
+    if (ticketData.category) {
+      const categoryLevels = getCategoryLevels(ticketData.category);
+      Object.assign(ticketData, categoryLevels);
+    }
 
     const updateTicketData = await Ticket.findByIdAndUpdate(id, ticketData, {
       new: true,

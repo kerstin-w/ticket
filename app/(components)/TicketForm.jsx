@@ -25,18 +25,54 @@ const TicketForm = ({ ticket }) => {
   const fileInputRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [description, setDescription] = useState('');
+  const [error, setError] = useState(null);
+
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    priority: 1,
+    progress: 0,
+    status: 'not started',
+    category: 'backlog',
+    screenshots: [],
+    type: 'bug',
+    hours: 0,
+    estimatedCosts: 0,
+    actualCosts: 0,
+  });
 
   useEffect(() => {
-    if (EDITMODE && ticket.description) {
-      setDescription(ticket.description);
+    if (EDITMODE) {
+      setFormData({
+        title: ticket.title || '',
+        description: ticket.description || '',
+        priority: ticket.priority || 1,
+        progress: ticket.progress || 0,
+        status: ticket.status || 'not started',
+        category: ticket.category || 'backlog',
+        screenshots: ticket.screenshots || [],
+        type: ticket.type || 'bug',
+        hours: ticket.hours || 0,
+        estimatedCosts: ticket.estimatedCosts || 0,
+        actualCosts: ticket.actualCosts || 0,
+      });
+      setDescription(ticket.description || '');
     }
-  }, [EDITMODE, ticket.description]);
+  }, [EDITMODE, ticket]);
+
+  const calculateEstimatedCosts = (hours) => {
+    return Math.round((hours * 1.3) / 140);
+  };
 
   const handleChange = (e) => {
-    const value = e.target.value;
-    const name = e.target.name;
-
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+    const { name, value } = e.target;
+    setFormData((prevState) => {
+      const newState = { ...prevState, [name]: value };
+      if (name === 'hours') {
+        newState.estimatedCosts = calculateEstimatedCosts(Number(value));
+      }
+      return newState;
+    });
   };
 
   const handleDescriptionChange = (content) => {
@@ -57,6 +93,7 @@ const TicketForm = ({ ticket }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     const formDataToSend = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -84,12 +121,17 @@ const TicketForm = ({ ticket }) => {
       });
 
       if (!res.ok) {
-        throw new Error(`Failed to ${EDITMODE ? 'update' : 'create'} Ticket.`);
+        const errorData = await res.json();
+        throw new Error(
+          errorData.message ||
+            `Failed to ${EDITMODE ? 'update' : 'create'} Ticket.`
+        );
       }
       router.refresh();
       router.push('/');
     } catch (error) {
       console.error(error);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +163,6 @@ const TicketForm = ({ ticket }) => {
     startingTicketData['costs'] = ticket.costs;
   }
 
-  const [formData, setFormData] = useState(startingTicketData);
   const [files, setFiles] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -133,6 +174,7 @@ const TicketForm = ({ ticket }) => {
         onSubmit={handleSubmit}
       >
         <h3>{EDITMODE ? 'Edit Your Ticket' : 'Create Your Ticket'}</h3>
+        {error && <div className="text-red-500">{error}</div>}
         <label>Title</label>
         <input
           id="title"
@@ -156,35 +198,49 @@ const TicketForm = ({ ticket }) => {
           }}
         />
 
-        <label>Category</label>
-        <select
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required={true}
-          disabled={!EDITMODE}
-        >
-          {categories.map((category) => (
-            <option key={category.value} value={category.value}>
-              {category.label}
-            </option>
-          ))}
-        </select>
-        <label>Type</label>
-        <select
-          id="type"
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          required={true}
-        >
-          {types.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
-            </option>
-          ))}
-        </select>
+        {/* Category and Type row */}
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <label htmlFor="category" className="block mb-1">
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required={true}
+              disabled={!EDITMODE}
+              className="w-full p-2 border rounded"
+            >
+              {categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <label htmlFor="type" className="block mb-1">
+              Type
+            </label>
+            <select
+              id="type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              required={true}
+              className="w-full p-2 border rounded"
+            >
+              {types.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <label>Priority</label>
         <div>
           {priorityOptions.map((priority) => (
@@ -215,26 +271,28 @@ const TicketForm = ({ ticket }) => {
             />
           </div>
           <div className="flex-1">
-            <label>Costs</label>
+            <label>Estimated Costs</label>
             <input
-              id="costs"
-              name="costs"
+              id="estimatedCosts"
+              name="estimatedCosts"
               type="number"
-              value={formData.costs}
-              onChange={handleChange}
+              value={formData.estimatedCosts}
+              readOnly
             />
           </div>
+          {EDITMODE && formData.status === 'started' && (
+            <div className="flex-1">
+              <label>Actual Costs</label>
+              <input
+                id="actualCosts"
+                name="actualCosts"
+                type="number"
+                value={formData.actualCosts}
+                onChange={handleChange}
+              />
+            </div>
+          )}
         </div>
-        <label>Progress</label>
-        <input
-          id="progress"
-          name="progress"
-          type="range"
-          value={formData.progress}
-          min="0"
-          max="100"
-          onChange={handleChange}
-        />
         <div>
           <label htmlFor="file-upload" className="btn">
             <FontAwesomeIcon icon={faPaperclip} className="icon-btn" />
