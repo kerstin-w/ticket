@@ -1,9 +1,10 @@
 {
   "pages": {
-    "/page": [
+    "/TicketPage/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/page.js"
+      "static/css/app/TicketPage/[id]/page.css",
+      "static/chunks/app/TicketPage/[id]/page.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -16,16 +17,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/loading.js"
     ],
-    "/TicketPage/[id]/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/TicketPage/[id]/page.css",
-      "static/chunks/app/TicketPage/[id]/page.js"
-    ],
-    "/Tracker/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/Tracker/page.js"
+      "static/chunks/app/page.js"
     ]
   }
 }

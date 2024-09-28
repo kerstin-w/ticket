@@ -72,7 +72,11 @@ const TicketCard = ({ ticket }) => {
         </div>
       </Link>
       <div className="mt-2">
-        <a href={ticket.link} className="text-blue-500 underline">
+        <a
+          href={ticket.link}
+          target="_blank"
+          className="text-blue-500 underline"
+        >
           {ticket.link}
         </a>
       </div>
