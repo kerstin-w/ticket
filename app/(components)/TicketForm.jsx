@@ -37,8 +37,8 @@ const TicketForm = ({ ticket }) => {
     screenshots: [],
     type: 'bug',
     hours: 0,
-    estimatedCosts: 0,
     actualCosts: 0,
+    estimatedCosts: 0,
   });
 
   useEffect(() => {
@@ -53,16 +53,12 @@ const TicketForm = ({ ticket }) => {
         screenshots: ticket.screenshots || [],
         type: ticket.type || 'bug',
         hours: ticket.hours || 0,
-        estimatedCosts: ticket.estimatedCosts || 0,
         actualCosts: ticket.actualCosts || 0,
+        estimatedCosts: ticket.estimatedCosts || 0,
       });
       setDescription(ticket.description || '');
     }
   }, [EDITMODE, ticket]);
-
-  const calculateEstimatedCosts = (hours) => {
-    return Math.round((hours * 1.3) / 140);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,6 +69,10 @@ const TicketForm = ({ ticket }) => {
       }
       return newState;
     });
+  };
+
+  const calculateEstimatedCosts = (hours) => {
+    return Math.round((hours * 1.3) / 140);
   };
 
   const handleDescriptionChange = (content) => {
@@ -104,6 +104,15 @@ const TicketForm = ({ ticket }) => {
         );
       }
     });
+
+    formDataToSend.append('screenshots', JSON.stringify(formData.screenshots));
+
+    files.forEach((file, index) => {
+      formDataToSend.append(`file${index}`, file);
+    });
+
+    // Ensure estimatedCosts is included
+    formDataToSend.append('estimatedCosts', formData.estimatedCosts);
 
     formDataToSend.append('screenshots', JSON.stringify(formData.screenshots));
 
@@ -280,6 +289,7 @@ const TicketForm = ({ ticket }) => {
               readOnly
             />
           </div>
+
           {EDITMODE && formData.status === 'started' && (
             <div className="flex-1">
               <label>Actual Costs</label>

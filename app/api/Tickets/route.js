@@ -30,7 +30,6 @@ export async function POST(req) {
 
     // Convert hours and costs to numbers
     if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
-    if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
 
     // Add category levels
     const categoryLevels = getCategoryLevels(ticketData.category);

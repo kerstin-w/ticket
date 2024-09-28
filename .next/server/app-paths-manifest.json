@@ -1,9 +1,5 @@
 {
-  "/YearPage/[year]/page": "app/YearPage/[year]/page.js",
-  "/Budget/page": "app/Budget/page.js",
-  "/Tracker/page": "app/Tracker/page.js",
   "/TicketPage/[id]/page": "app/TicketPage/[id]/page.js",
-  "/api/Tickets/route": "app/api/Tickets/route.js",
-  "/api/Tickets/[id]/route": "app/api/Tickets/[id]/route.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/api/Tickets/route": "app/api/Tickets/route.js"
 }

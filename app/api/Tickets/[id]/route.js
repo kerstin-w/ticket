@@ -27,10 +27,17 @@ function getCategoryLevels(category) {
 export async function GET(req, { params }) {
   try {
     const { id } = params;
+    const foundTicket = await Ticket.findOne({ _id: id });
 
-    const foundTicketData = await Ticket.findOne({ _id: id });
+    if (!foundTicket) {
+      return NextResponse.json(
+        { message: 'Ticket not found' },
+        { status: 404 }
+      );
+    }
 
-    return NextResponse.json({ foundTicket: foundTicketData }, { status: 200 });
+    // The estimatedCosts will be automatically included due to the virtual property
+    return NextResponse.json({ foundTicket }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ message: 'Error', error }, { status: 500 });
   }
@@ -83,6 +90,11 @@ export async function PUT(req, { params }) {
     // Convert hours and costs to numbers
     if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
     if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
+    if (ticketData.actualCosts)
+      ticketData.actualCosts = Number(ticketData.actualCosts);
+
+    // Calculate estimatedCosts
+    ticketData.estimatedCosts = Math.round((ticketData.hours * 1.3) / 140);
 
     // Update category levels if category has changed
     if (ticketData.category) {
