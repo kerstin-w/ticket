@@ -39,6 +39,7 @@ const TicketForm = ({ ticket }) => {
     hours: 0,
     actualCosts: 0,
     estimatedCosts: 0,
+    link: '', // Add link field here
   });
 
   useEffect(() => {
@@ -55,6 +56,7 @@ const TicketForm = ({ ticket }) => {
         hours: ticket.hours || 0,
         estimatedCosts: ticket.estimatedCosts || 0,
         actualCosts: ticket.actualCosts || 0,
+        link: ticket.link || '', // Initialize link field
       });
       setDescription(ticket.description || '');
     }
@@ -157,6 +159,7 @@ const TicketForm = ({ ticket }) => {
     type: 'bug',
     hours: 0,
     costs: 0,
+    link: '', // Add link field here
   };
 
   if (EDITMODE) {
@@ -170,6 +173,7 @@ const TicketForm = ({ ticket }) => {
     startingTicketData.screenshots = ticket.screenshots || [];
     startingTicketData['hours'] = ticket.hours;
     startingTicketData['costs'] = ticket.costs;
+    startingTicketData['link'] = ticket.link; // Initialize link field
   }
 
   const [files, setFiles] = useState([]);
@@ -205,6 +209,16 @@ const TicketForm = ({ ticket }) => {
               ['clean'],
             ],
           }}
+        />
+
+        {/* Link field */}
+        <label>Link</label>
+        <input
+          id="link"
+          name="link"
+          type="url"
+          value={formData.link}
+          onChange={handleChange}
         />
 
         {/* Category and Type row */}

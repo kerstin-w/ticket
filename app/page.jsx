@@ -59,6 +59,13 @@ const downloadExcelFile = async () => {
   }
 };
 
+const getCost = (ticket) => {
+  if (ticket.status !== 'not started' && ticket.actualCosts) {
+    return ticket.actualCosts;
+  }
+  return ticket.estimatedCosts || 0; // Use 0 as fallback if estimatedCosts is not set
+};
+
 const CategoryColumn = ({ category, tickets, getCategorySummary }) => (
   <Droppable key={category} droppableId={category}>
     {(provided) => (
@@ -185,7 +192,7 @@ const Dashboard = () => {
         0
       );
       const totalCosts = categoryTickets.reduce(
-        (sum, ticket) => sum + (ticket.costs || 0),
+        (sum, ticket) => sum + getCost(ticket),
         0
       );
       return { totalHours, totalCosts };

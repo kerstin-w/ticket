@@ -22,6 +22,15 @@ const TicketCard = ({ ticket }) => {
     return formetedDate;
   };
 
+  const getCost = (ticket) => {
+    if (ticket.status !== 'not started' && ticket.actualCosts) {
+      return ticket.actualCosts;
+    }
+    return ticket.estimatedCosts || 0; // Use 0 as fallback if estimatedCosts is not set
+  };
+
+  const cost = getCost(ticket);
+
   return (
     <div className="flex flex-col bg-card hover:bg-card-hover rounded-md shadow-lg p-3 m-2">
       <div className="flex mb-3 ">
@@ -38,7 +47,7 @@ const TicketCard = ({ ticket }) => {
             __html: DOMPurify.sanitize(ticket.description),
           }}
         />
-        <hr class="h-px border-0 bg-page my-2" />
+        <hr className="h-px border-0 bg-page my-2" />
         <div className="flex">
           <div className="flex mt-2">
             <div className="mr-auto flex items-end">
@@ -53,10 +62,20 @@ const TicketCard = ({ ticket }) => {
           </div>
           <div className="ml-auto flex flex-col items-end">
             <p className="text-xs my-1">Hours: {ticket.hours}</p>
-            <p className="text-xs my-1">Costs: {ticket.stimatedCosts}</p>
+            <p className="text-xs my-1">
+              Costs: €{cost.toFixed(2)}
+              {ticket.status !== 'not started' && ticket.actualCosts
+                ? ' (Actual)'
+                : ' (Estimated)'}
+            </p>
           </div>
         </div>
       </Link>
+      <div className="mt-2">
+        <a href={ticket.link} className="text-blue-500 underline">
+          {ticket.link}
+        </a>
+      </div>
     </div>
   );
 };

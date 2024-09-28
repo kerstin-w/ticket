@@ -89,3 +89,68 @@ export const calculateRemainingBudget = async (
 
   return totalBudget - totalSpent;
 };
+
+export const getCategoryHierarchy = (category) => {
+  if (category === 'backlog')
+    return { month: 'backlog', quarter: 'backlog', year: 'backlog' };
+
+  const match = category.match(/^(\d{2})(\d{4})$/);
+  if (!match) return null;
+
+  const [, month, year] = match;
+  const quarterMap = {
+    '01': 'Q1',
+    '02': 'Q1',
+    '03': 'Q1',
+    '04': 'Q2',
+    '05': 'Q2',
+    '06': 'Q2',
+    '07': 'Q3',
+    '08': 'Q3',
+    '09': 'Q3',
+    10: 'Q4',
+    11: 'Q4',
+    12: 'Q4',
+  };
+  const quarter = `${quarterMap[month]}${year}`;
+
+  return {
+    month: category,
+    quarter,
+    year,
+  };
+};
+
+export const aggregateDataByLevel = (data) => {
+  const aggregated = {
+    month: {},
+    quarter: {},
+    year: {},
+  };
+
+  data.forEach((item) => {
+    const hierarchy = getCategoryHierarchy(item.name);
+    if (!hierarchy) return;
+
+    ['month', 'quarter', 'year'].forEach((level) => {
+      const key = hierarchy[level];
+      if (!aggregated[level][key]) {
+        aggregated[level][key] = {
+          name: key,
+          budget: 0,
+          estimatedCosts: 0,
+          actualCosts: 0,
+          totalCosts: 0,
+          count: 0,
+        };
+      }
+      aggregated[level][key].budget += item.budget || 0;
+      aggregated[level][key].estimatedCosts += item.estimatedCosts || 0;
+      aggregated[level][key].actualCosts += item.actualCosts || 0;
+      aggregated[level][key].totalCosts += item.totalCosts || 0;
+      aggregated[level][key].count += item.count || 0;
+    });
+  });
+
+  return aggregated;
+};

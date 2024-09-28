@@ -13,7 +13,16 @@ const ticketSchema = {
   screenshots: Array,
   hours: Number,
   actualCosts: Number,
-  estimatedCosts: Number, // Added this line
+  estimatedCosts: Number,
+  link: {
+    type: String,
+    validate: {
+      validator: function (v) {
+        return /^(ftp|http|https):\/\/[^ "]+$/.test(v);
+      },
+      message: (props) => `${props.value} is not a valid URL!`,
+    },
+  },
 };
 
 let Ticket;

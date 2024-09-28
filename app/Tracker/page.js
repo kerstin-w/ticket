@@ -18,6 +18,8 @@ import { useFilteredTickets } from '../hooks/useFilteredTickets';
 import { categories as predefinedCategories } from '../(constants)/categories';
 import KPI from '../(components)/KPI';
 import CategoryCheckboxFilter from '../(components)/CategoryCheckboxFilter';
+import CategoryBudgetOverview from '../(components)/CategoryBudgetOverview';
+import { aggregateDataByLevel } from '../utils/categoryUtils';
 
 const Tracker = () => {
   const { tickets, categoryBudgets } = useTicketData();
@@ -25,6 +27,7 @@ const Tracker = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
   const [typeFilter, setTypeFilter] = useState('All');
+  const [displayLevel, setDisplayLevel] = useState('month');
 
   const allCategories = useMemo(() => {
     const ticketCategories = Array.from(
@@ -64,8 +67,13 @@ const Tracker = () => {
       (sum, ticket) => sum + (ticket.hours || 0),
       0
     );
-    const totalCosts = filteredTickets.reduce(
-      (sum, ticket) => sum + (ticket.costs || 0),
+    const totalEstimatedCosts = filteredTickets.reduce(
+      (sum, ticket) =>
+        sum + (ticket.actualCosts ? 0 : ticket.estimatedCosts || 0),
+      0
+    );
+    const totalActualCosts = filteredTickets.reduce(
+      (sum, ticket) => sum + (ticket.actualCosts || 0),
       0
     );
     const averageProgress =
@@ -76,8 +84,43 @@ const Tracker = () => {
           ) / totalTickets
         : 0;
 
-    return { totalTickets, totalHours, totalCosts, averageProgress };
+    return {
+      totalTickets,
+      totalHours,
+      totalEstimatedCosts,
+      totalActualCosts,
+      averageProgress,
+    };
   }, [filteredTickets]);
+
+  // Prepare categoryData with estimated and actual costs
+  const preparedCategoryData = useMemo(() => {
+    const monthlyData = categoryData.map((category) => {
+      const categoryTickets = filteredTickets.filter(
+        (ticket) => ticket.category === category.name
+      );
+      const estimatedCosts = categoryTickets.reduce(
+        (sum, ticket) =>
+          sum + (ticket.actualCosts ? 0 : ticket.estimatedCosts || 0),
+        0
+      );
+      const actualCosts = categoryTickets.reduce(
+        (sum, ticket) => sum + (ticket.actualCosts || 0),
+        0
+      );
+      const totalCosts = actualCosts + estimatedCosts;
+      return {
+        ...category,
+        estimatedCosts,
+        actualCosts,
+        totalCosts,
+        remainingBudget: category.budget - totalCosts,
+      };
+    });
+
+    const aggregatedData = aggregateDataByLevel(monthlyData);
+    return aggregatedData[displayLevel];
+  }, [categoryData, filteredTickets, displayLevel]);
 
   const statusData = useMemo(() => {
     const statusCount = filteredTickets.reduce((acc, ticket) => {
@@ -139,6 +182,21 @@ const Tracker = () => {
             </option>
           ))}
         </select>
+        <div className="mb-4">
+          <label htmlFor="displayLevel" className="mr-2">
+            Display Level:
+          </label>
+          <select
+            id="displayLevel"
+            value={displayLevel}
+            onChange={(e) => setDisplayLevel(e.target.value)}
+            className="border rounded p-2"
+          >
+            <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+            <option value="year">Year</option>
+          </select>
+        </div>
         <button
           onClick={resetFilters}
           className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -147,7 +205,7 @@ const Tracker = () => {
         </button>
       </div>
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <KPI
           title="Total Tickets"
           value={kpis.totalTickets}
@@ -161,54 +219,38 @@ const Tracker = () => {
           textColor="text-green-600"
         />
         <KPI
-          title="Total Costs"
-          value={`€${kpis.totalCosts.toFixed(2)}`}
+          title="Total Estimated Costs"
+          value={`€${kpis.totalEstimatedCosts.toFixed(2)}`}
           bgColor="bg-yellow-100"
           textColor="text-yellow-600"
+        />
+        <KPI
+          title="Total Actual Costs"
+          value={`€${kpis.totalActualCosts.toFixed(2)}`}
+          bgColor="bg-red-100"
+          textColor="text-red-600"
+        />
+        <KPI
+          title="Total Costs"
+          value={`€${(kpis.totalEstimatedCosts + kpis.totalActualCosts).toFixed(
+            2
+          )}`}
+          bgColor="bg-purple-100"
+          textColor="text-purple-600"
         />
       </div>
 
       {/* Category Budget Overview */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold mb-2">Category Budget Overview</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr>
-                <th className="border p-2">Category</th>
-                <th className="border p-2">Budget</th>
-                <th className="border p-2">Spent (Started)</th>
-                <th className="border p-2">Remaining</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categoryData.map((category) => (
-                <tr key={category.name}>
-                  <td className="border p-2">{category.name}</td>
-                  <td className="border p-2">€{category.budget.toFixed(2)}</td>
-                  <td className="border p-2">
-                    €{category.startedCosts.toFixed(2)}
-                  </td>
-                  <td
-                    className={`border p-2 ${
-                      category.remainingBudget < 0
-                        ? 'text-red-500'
-                        : 'text-green-500'
-                    }`}
-                  >
-                    €{category.remainingBudget.toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <CategoryBudgetOverview
+        categoryData={Object.values(preparedCategoryData)}
+      />
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* New Budget vs Spent Charts */}
-        <BudgetVsSpentCharts categoryData={categoryData} />
+        <BudgetVsSpentCharts
+          categoryData={Object.values(preparedCategoryData)}
+        />
         <div className="border rounded p-4">
           <h2 className="font-bold mb-2 text-lg">Tickets by Status</h2>
           <ResponsiveContainer width="100%" height={300}>

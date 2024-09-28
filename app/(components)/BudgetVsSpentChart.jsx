@@ -14,16 +14,20 @@ import Spinner from './Spinner';
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+    const formatValue = (value) => (value != null ? value.toFixed(2) : 'N/A');
     return (
       <div className="custom-tooltip bg-gray-800 text-white p-2 border rounded shadow">
         <p className="font-bold">{label}</p>
-        <p>Budget: €{data.Budget.toFixed(2)}</p>
-        <p>Total Costs: €{data['Total Costs'].toFixed(2)}</p>
-        <p>Started Costs: €{data['Started Costs'].toFixed(2)}</p>
-        <p>Remaining: €{data.Remaining.toFixed(2)}</p>
+        <p>Budget: €{formatValue(data.Budget)}</p>
+        <p>Estimated Costs: €{formatValue(data['Estimated Costs'])}</p>
+        <p>Actual Costs: €{formatValue(data['Actual Costs'])}</p>
+        <p>Remaining: €{formatValue(data.Remaining)}</p>
         <p>
           Percentage Spent:{' '}
-          {((data['Started Costs'] / data.Budget) * 100).toFixed(2)}%
+          {data.Budget && data['Actual Costs']
+            ? ((data['Actual Costs'] / data.Budget) * 100).toFixed(2)
+            : 'N/A'}
+          %
         </p>
       </div>
     );
@@ -32,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const renderCustomizedLabel = ({ x, y, width, height, value }) => {
-  if (value <= 0) return null;
+  if (value == null || value <= 0) return null;
   return (
     <g>
       <text
@@ -49,21 +53,6 @@ const renderCustomizedLabel = ({ x, y, width, height, value }) => {
   );
 };
 
-const processChartData = (categoryData) => {
-  const sortedData = [...categoryData].sort((a, b) => {
-    if (a.name.length !== b.name.length) return b.name.length - a.name.length;
-    return a.name.localeCompare(b.name);
-  });
-
-  return sortedData.map((category) => ({
-    name: category.name,
-    Budget: category.budget,
-    'Total Costs': category.costs,
-    'Started Costs': category.startedCosts,
-    Remaining: Math.max(0, category.budget - category.startedCosts),
-  }));
-};
-
 const BudgetVsSpentCharts = ({ categoryData }) => {
   const [chart, setChart] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,18 +60,26 @@ const BudgetVsSpentCharts = ({ categoryData }) => {
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => {
-      setChart(processChartData(categoryData));
+      const processedData = categoryData.map((category) => ({
+        name: category.name,
+        Budget: category.budget || 0,
+        'Estimated Costs': category.estimatedCosts || 0,
+        'Actual Costs': category.actualCosts || 0,
+        Remaining: Math.max(
+          0,
+          (category.budget || 0) - (category.actualCosts || 0)
+        ),
+      }));
+      setChart(processedData);
       setIsLoading(false);
-    }, 100); // Adjust this delay as needed
+    }, 100);
 
     return () => clearTimeout(timer);
   }, [categoryData]);
 
   return (
     <div className="border rounded p-4">
-      <h2 className="font-bold mb-2 text-lg">
-        Budget vs Spent by Category (Including Rollups)
-      </h2>
+      <h2 className="font-bold mb-2 text-lg">Budget vs Costs by Category</h2>
       {isLoading ? (
         <div className="flex justify-center items-center h-96">
           <Spinner />
@@ -101,15 +98,15 @@ const BudgetVsSpentCharts = ({ categoryData }) => {
             <Bar dataKey="Budget" stackId="a" fill="#82ca9d">
               <LabelList dataKey="Budget" content={renderCustomizedLabel} />
             </Bar>
-            <Bar dataKey="Total Costs" stackId="b" fill="#8884d8">
+            <Bar dataKey="Estimated Costs" stackId="b" fill="#8884d8">
               <LabelList
-                dataKey="Total Costs"
+                dataKey="Estimated Costs"
                 content={renderCustomizedLabel}
               />
             </Bar>
-            <Bar dataKey="Started Costs" stackId="c" fill="#ffc658">
+            <Bar dataKey="Actual Costs" stackId="c" fill="#ffc658">
               <LabelList
-                dataKey="Started Costs"
+                dataKey="Actual Costs"
                 content={renderCustomizedLabel}
               />
             </Bar>
