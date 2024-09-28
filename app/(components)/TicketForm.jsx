@@ -53,8 +53,8 @@ const TicketForm = ({ ticket }) => {
         screenshots: ticket.screenshots || [],
         type: ticket.type || 'bug',
         hours: ticket.hours || 0,
-        actualCosts: ticket.actualCosts || 0,
         estimatedCosts: ticket.estimatedCosts || 0,
+        actualCosts: ticket.actualCosts || 0,
       });
       setDescription(ticket.description || '');
     }
@@ -72,7 +72,7 @@ const TicketForm = ({ ticket }) => {
   };
 
   const calculateEstimatedCosts = (hours) => {
-    return Math.round((hours * 1.3) / 140);
+    return Math.round(hours * 1.3 * 140);
   };
 
   const handleDescriptionChange = (content) => {

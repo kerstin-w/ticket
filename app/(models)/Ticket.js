@@ -13,7 +13,7 @@ const ticketSchema = {
   screenshots: Array,
   hours: Number,
   actualCosts: Number,
-  estimatedCosts: Number,
+  estimatedCosts: Number, // Added this line
 };
 
 let Ticket;
@@ -23,9 +23,9 @@ if (typeof window === 'undefined') {
   const mongoose = require('mongoose');
   const schema = new mongoose.Schema(ticketSchema, { timestamps: true });
 
-  // Add a method to calculate estimatedCosts
+  // Update the method to calculate estimatedCosts
   schema.methods.calculateEstimatedCosts = function () {
-    this.estimatedCosts = Math.round((this.hours * 1.3) / 140);
+    this.estimatedCosts = Math.round(this.hours * 1.3 * 140);
   };
 
   // Pre-save middleware to calculate estimatedCosts
@@ -36,9 +36,7 @@ if (typeof window === 'undefined') {
 
   schema.pre('findOneAndUpdate', function (next) {
     if (this._update.hours) {
-      this._update.estimatedCosts = Math.round(
-        (this._update.hours * 1.3) / 140
-      );
+      this._update.estimatedCosts = Math.round(this._update.hours * 1.3 * 140);
     }
     next();
   });

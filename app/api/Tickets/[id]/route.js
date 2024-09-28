@@ -87,14 +87,8 @@ export async function PUT(req, { params }) {
       ticketData.screenshots = screenshots;
     }
 
-    // Convert hours and costs to numbers
+    // Convert hours to number
     if (ticketData.hours) ticketData.hours = Number(ticketData.hours);
-    if (ticketData.costs) ticketData.costs = Number(ticketData.costs);
-    if (ticketData.actualCosts)
-      ticketData.actualCosts = Number(ticketData.actualCosts);
-
-    // Calculate estimatedCosts
-    ticketData.estimatedCosts = Math.round((ticketData.hours * 1.3) / 140);
 
     // Update category levels if category has changed
     if (ticketData.category) {
@@ -102,14 +96,15 @@ export async function PUT(req, { params }) {
       Object.assign(ticketData, categoryLevels);
     }
 
-    const updateTicketData = await Ticket.findByIdAndUpdate(id, ticketData, {
+    const updatedTicket = await Ticket.findByIdAndUpdate(id, ticketData, {
       new: true,
+      runValidators: true,
     });
 
-    console.log('Ticket updated:', updateTicketData);
+    console.log('Ticket updated:', updatedTicket);
 
     return NextResponse.json(
-      { message: 'Ticket Updated', ticket: updateTicketData },
+      { message: 'Ticket Updated', ticket: updatedTicket },
       { status: 200 }
     );
   } catch (error) {
